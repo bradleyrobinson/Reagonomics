@@ -14,14 +14,22 @@ class Reagan(pygame.sprite.Sprite):
         self.standing_pic = pygame.image.load(os.path.join('Images', 'ronaldus_standing.png')).convert()
 
         # Animated Sprite Information
-        self.running = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_run_0.png'), 0.1),
+        self.running_right = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_run_0.png'), 0.1),
                                              (os.path.join('Images', 'ronaldus_run_1.png'), 0.1),
                                              (os.path.join('Images', 'ronaldus_run_2.png'), 0.1),
                                              (os.path.join('Images', 'ronaldus_run_3.png'), 0.1),
                                              (os.path.join('Images', 'ronaldus_run_4.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_5.png'), 0.1)
-                                            ])
-        self.running.play()
+                                             (os.path.join('Images', 'ronaldus_run_5.png'), 0.1)])
+        
+        self.running_left = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_runleft_0.png'), 0.1),
+                                                  (os.path.join('Images', 'ronaldus_runleft_1.png'), 0.1),
+                                                  (os.path.join('Images', 'ronaldus_runleft_2.png'), 0.1),
+                                                  (os.path.join('Images', 'ronaldus_runleft_3.png'), 0.1),
+                                                  (os.path.join('Images', 'ronaldus_runleft_4.png'), 0.1),
+                                                  (os.path.join('Images', 'ronaldus_runleft_5.png'), 0.1)])
+                                                 
+        self.running_right.play()
+        self.running_left.play()
 
         self.screen = screen
         self.screen_size = screen_size
@@ -43,8 +51,10 @@ class Reagan(pygame.sprite.Sprite):
             self.speed = 0
 
     def blit_me(self):
-        if self.speed != 0:
-            self.running.blit(self.screen, self.pos)
+        if self.speed > 0:
+            self.running_right.blit(self.screen, self.pos)
+        elif self.speed < 0:
+            self.running_left.blit(self.screen, self.pos)
         else:
             self.screen.blit(self.standing_pic, self.pos)
 
@@ -54,7 +64,7 @@ class Reagan(pygame.sprite.Sprite):
 class FallingMoney(pygame.sprite.Sprite):
     def __init__(self, screen, screen_size, pos, speed, value_point):
         pygame.sprite.Sprite.__init__(self)
-        self.spinning_coin = pyganim.PygAnimation([(os.path.join('Images', 'coin_01.png'), 0.1),
+        self.spinning_coin = pyganim.PygAnimation([
                                                    (os.path.join('Images', 'coin_02.png'), 0.1),
                                                    (os.path.join('Images', 'coin_03.png'), 0.1),
                                                    (os.path.join('Images', 'coin_04.png'), 0.1),
