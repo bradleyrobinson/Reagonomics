@@ -28,6 +28,7 @@ def control_player(event):
             return 'LU'
 
 
+# This figures out if the game is to be closed, if not, it sends the rest of the events to control the player
 def get_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -37,13 +38,14 @@ def get_events():
     return True
 
 
-# TODO: This is just for testing
+# TODO: This is just for testing, remove this
 def place_coints():
     for i in range(0, 20):
         position = [random.randrange(0, SIZE[0]), random.randrange(0, SIZE[1])]
         speed = .2
         coin = GameSprites.FallingMoney(screen, SIZE, position, speed, 10)
         sprite_list.append(coin)
+
 
 def main():
     play = True

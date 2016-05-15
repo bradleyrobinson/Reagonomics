@@ -5,20 +5,21 @@
 """
 import pygame
 import pyganim
+import os
 
 class Reagan(pygame.sprite.Sprite):
     def __init__(self, screen, screen_size):
         pygame.sprite.Sprite.__init__(self)
         # Image information
-        self.standing_pic = pygame.image.load('Images/ronaldus_standing.png').convert()
+        self.standing_pic = pygame.image.load(os.path.join('Images', 'ronaldus_standing.png')).convert()
 
         # Animated Sprite Information
-        self.running = pyganim.PygAnimation([('Images/ronaldus_run_0.png', 0.1),
-                                            ('Images/ronaldus_run_1.png', 0.1),
-                                            ('Images/ronaldus_run_2.png', 0.1),
-                                            ('Images/ronaldus_run_3.png', 0.1),
-                                            ('Images/ronaldus_run_4.png', 0.1),
-                                            ('Images/ronaldus_run_5.png', 0.1)
+        self.running = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_run_0.png'), 0.1),
+                                             (os.path.join('Images', 'ronaldus_run_1.png'), 0.1),
+                                             (os.path.join('Images', 'ronaldus_run_2.png'), 0.1),
+                                             (os.path.join('Images', 'ronaldus_run_3.png'), 0.1),
+                                             (os.path.join('Images', 'ronaldus_run_4.png'), 0.1),
+                                             (os.path.join('Images', 'ronaldus_run_5.png'), 0.1)
                                             ])
         self.running.play()
 
@@ -53,14 +54,14 @@ class Reagan(pygame.sprite.Sprite):
 class FallingMoney(pygame.sprite.Sprite):
     def __init__(self, screen, screen_size, pos, speed, value_point):
         pygame.sprite.Sprite.__init__(self)
-        self.spinning_coin = pyganim.PygAnimation([('Images/coin_01.png', .1),
-                                                   ('Images/coin_02.png', .1),
-                                                   ('Images/coin_03.png', .1),
-                                                   ('Images/coin_04.png', .1),
-                                                   ('Images/coin_05.png', .1),
-                                                   ('Images/coin_06.png', .1),
-                                                   ('Images/coin_07.png', .1),
-                                                   ('Images/coin_08.png', .1)
+        self.spinning_coin = pyganim.PygAnimation([(os.path.join('Images', 'coin_01.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_02.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_03.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_04.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_05.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_06.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_07.png'), 0.1),
+                                                   (os.path.join('Images', 'coin_08.png'), 0.1)
                                                    ])
         self.spinning_coin.play()
         # Get the image ready
