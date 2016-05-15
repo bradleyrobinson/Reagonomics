@@ -4,23 +4,19 @@
 import pygame
 import random
 import GameSprites
-
-BLACK = (0, 0, 0)
-
-pygame.init()
-SIZE = [800, 600]
-screen = pygame.display.set_mode(SIZE)
-pygame.display.set_caption('Reagonomics')
-reagan = GameSprites.Reagan(screen, SIZE)
-sprite_list = [reagan]
+import Levels
 
 
+# Function that determines if an important
 def control_player(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_RIGHT:
             return 'R'
         elif event.key == pygame.K_LEFT:
             return 'L'
+        elif event.key == pygame.K_UP:
+            print 'jump please'
+            return 'J'
     if event.type == pygame.KEYUP:
         if event.key == pygame.K_RIGHT:
             return 'RU'
@@ -29,7 +25,7 @@ def control_player(event):
 
 
 # This figures out if the game is to be closed, if not, it sends the rest of the events to control the player
-def get_events():
+def get_events(reagan):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
@@ -38,24 +34,31 @@ def get_events():
     return True
 
 
-# TODO: This is just for testing, remove this
-def place_coints():
-    for i in range(0, 20):
-        position = [random.randrange(0, SIZE[0]), random.randrange(0, SIZE[1])]
-        speed = .2
-        coin = GameSprites.FallingMoney(screen, SIZE, position, speed, 10)
-        sprite_list.append(coin)
-
-
 def main():
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    pygame.init()
+    SIZE = [800, 600]
+    screen = pygame.display.set_mode(SIZE)
+    pygame.display.set_caption('Reagonomics')
+    reagan = GameSprites.Reagan(screen, SIZE)
+    active_sprite_list = pygame.sprite.Group()
+    active_sprite_list.add(reagan)
+    current_level_no = 0
+    level_1 = Levels.Level_01(reagan)
+    level_list = [level_1]
+    current_level = level_list[current_level_no]
+    reagan.level = current_level
     play = True
-    place_coints()
     while play:
-        play = get_events()
-        screen.fill(BLACK)
-        for sprite in sprite_list:
-            sprite.update()
+        play = get_events(reagan)
+        screen.fill(WHITE)
+        current_level.update()
+        current_level.draw(screen)
+        active_sprite_list.update()
         pygame.display.flip()
+
+    pygame.quit()
 
 
 if __name__ == '__main__':
