@@ -15,13 +15,16 @@ def control_player(event):
         elif event.key == pygame.K_LEFT:
             return 'L'
         elif event.key == pygame.K_UP:
-            print 'jump please'
             return 'J'
+        elif event.key == pygame.K_LSHIFT:
+            return 'S'
     if event.type == pygame.KEYUP:
         if event.key == pygame.K_RIGHT:
             return 'RU'
         elif event.key == pygame.K_LEFT:
             return 'LU'
+        elif event.key == pygame.K_LSHIFT:
+            return 'SU'
 
 
 # This figures out if the game is to be closed, if not, it sends the rest of the events to control the player
@@ -33,7 +36,7 @@ def get_events(reagan):
             reagan.move(control_player(event))
     return True
 
-
+clock = pygame.time.Clock()
 def main():
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
@@ -51,6 +54,7 @@ def main():
     reagan.level = current_level
     play = True
     while play:
+        clock.tick(60)
         play = get_events(reagan)
         screen.fill(WHITE)
         current_level.update()

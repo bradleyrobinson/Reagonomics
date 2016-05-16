@@ -34,6 +34,8 @@ class Reagan(pygame.sprite.Sprite):
         self.running_right.play()
         self.running_left.play()
 
+        self.is_running = False
+
         # These give us information for where to put things
         self.rect = self.standing_pic.get_rect()
         self.screen = screen
@@ -50,8 +52,8 @@ class Reagan(pygame.sprite.Sprite):
     def update(self):
         self.pos[0] += self.speed_x
         self.calc_grav()
-        self.pos[1] += self.speed_y
         self.check_for_platforms()
+        self.pos[1] += self.speed_y
         self.blit_me()
 
     def check_for_platforms(self):
@@ -72,14 +74,17 @@ class Reagan(pygame.sprite.Sprite):
 
     def move(self, action):
         if action == 'R':
-            self.speed_x = 1
+            self.speed_x = 5
         elif action == 'L':
-            self.speed_x = -1
+            self.speed_x = -5
         elif action == 'J':
-            print 'Jump please!'
             self.jump()
+        elif action == 'S':
+            self.speed_x *= 3
         elif action == 'RU' or 'LU':
             self.speed_x = 0
+        elif action == 'SU':
+            self.is_running = False
 
     def jump(self):
         self.rect.y += 2
@@ -90,9 +95,9 @@ class Reagan(pygame.sprite.Sprite):
 
     def calc_grav(self):
         if self.speed_y == 0:
-            self.speed_y = .5
+            self.speed_y = 1.5
         else:
-            self.speed_y += .15
+            self.speed_y += .5
 
         # Unless we are on the ground.
         # TODO: Change this to just platforms

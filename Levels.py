@@ -1,5 +1,6 @@
 import pygame
 import GameSprites
+import os
 
 class Level(object):
     def __init__(self, player):
@@ -16,7 +17,10 @@ class Level(object):
         self.money_list.update()
 
     def draw(self, screen):
-        screen.fill((255, 255, 255))
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((255, 255, 255))
         self.platform_list.draw(screen)
         self.enemy_list.draw(screen)
 
@@ -28,14 +32,13 @@ class Level_01(Level):
         """ Create level 1. """
         Level.__init__(self, player)
 
-        # Call the parent constructor
-        Level.__init__(self, player)
-
         # Array with width, height, x, and y of platform
         level = [[210, 70, 500, 500],
                  [210, 70, 200, 400],
                  [210, 70, 600, 300],
                  ]
+
+        self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
 
         # Go through the array above and add platforms
         for platform in level:
