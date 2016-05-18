@@ -39,7 +39,7 @@ class Reagan(pygame.sprite.Sprite):
         self.running_left.play()
         self.jumping.play()
 
-        self.is_running = False
+        self.is_running = 1
 
         # These give us information for where to put things
         self.rect = self.standing_pic.get_rect()
@@ -47,7 +47,6 @@ class Reagan(pygame.sprite.Sprite):
         self.screen_size = screen_size
 
         # These give us position info
-        # self.pos = [20, 0]
         self.speed_x = 0
         self.speed_y = 0
 
@@ -55,10 +54,9 @@ class Reagan(pygame.sprite.Sprite):
         self.level = None
 
     def update(self):
-        # self.pos[0] += self.speed_x
         # TODO: Change this to see if it works better...
         self.calc_grav()
-        self.rect.x += self.speed_x
+        self.rect.x += self.speed_x * self.is_running
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
             if self.speed_x > 0:
@@ -81,12 +79,13 @@ class Reagan(pygame.sprite.Sprite):
             self.speed_x = -7
         elif action == 'J':
             self.jump()
+        # TODO: Let's change this sometime soon... It doesn't work yet
         elif action == 'S':
-            self.speed_x *= 1.5
+            self.is_running = 1
         elif action == 'RU' or 'LU':
             self.speed_x = 0
         elif action == 'SU':
-            self.is_running = False
+            self.is_running = 1
 
     def jump(self):
         self.rect.y += 2
