@@ -30,12 +30,16 @@ class Reagan(pygame.sprite.Sprite):
                                                   (os.path.join('Images', 'ronaldus_runleft_4.png'), 0.1),
                                                   (os.path.join('Images', 'ronaldus_runleft_5.png'), 0.1)])
 
+        self.jumping = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_jump_0.png'), 10),
+                                             (os.path.join('Images', 'ronaldus_jump_1.png'), 0.01),
+                                             (os.path.join('Images', 'ronaldus_jump_2.png'), 0.01)])
+
         # These assure that the images are animated
         self.running_right.play()
         self.running_left.play()
+        self.jumping.play()
 
         self.is_running = False
-        self.image = self.standing_pic
 
         # These give us information for where to put things
         self.rect = self.standing_pic.get_rect()
@@ -46,7 +50,6 @@ class Reagan(pygame.sprite.Sprite):
         # self.pos = [20, 0]
         self.speed_x = 0
         self.speed_y = 0
-
 
         # A list of sprites we can bump against
         self.level = None
@@ -70,13 +73,6 @@ class Reagan(pygame.sprite.Sprite):
             elif self.speed_y < 0:
                 self.rect.top = block.rect.bottom
             self.speed_y = 0
-        self.check_for_platforms()
-        # self.pos[1] += self.speed_y
-
-#        self.blit_me()
-
-    def check_for_platforms(self):
-        pass
 
     def move(self, action):
         if action == 'R':
@@ -116,6 +112,9 @@ class Reagan(pygame.sprite.Sprite):
             self.running_right.blit(self.screen, self.rect)
         elif self.speed_x < 0:
             self.running_left.blit(self.screen, self.rect)
+            self.running_left.blit(self.screen, self.pos)
+        elif self.speed_y < 0:
+            self.jumping.blit(self.screen, self.pos)
         else:
             self.screen.blit(self.standing_pic, self.rect)
 
