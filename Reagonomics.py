@@ -41,7 +41,7 @@ def main():
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     pygame.init()
-    SIZE = [800, 600]
+    SIZE = [1200, 701]
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption('Reagonomics')
     reagan = GameSprites.Reagan(screen, SIZE)
@@ -56,7 +56,6 @@ def main():
     while play:
         clock.tick(60)
         play = get_events(reagan)
-        screen.fill(WHITE)
         current_level.update()
         current_level.draw(screen)
         active_sprite_list.update()
