@@ -108,13 +108,12 @@ class Reagan(pygame.sprite.Sprite):
             self.rect.y = self.screen_size[1] - self.rect.height
 
     def blit_me(self):
-        if self.speed_x > 0:
+        if self.speed_x > 0 and self.speed_y == 0:
             self.running_right.blit(self.screen, self.rect)
-        elif self.speed_x < 0:
+        elif self.speed_x < 0 and self.speed_y == 0:
             self.running_left.blit(self.screen, self.rect)
-            self.running_left.blit(self.screen, self.pos)
         elif self.speed_y < 0:
-            self.jumping.blit(self.screen, self.pos)
+            self.jumping.blit(self.screen, self.rect)
         else:
             self.screen.blit(self.standing_pic, self.rect)
 
