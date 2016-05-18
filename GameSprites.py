@@ -35,6 +35,7 @@ class Reagan(pygame.sprite.Sprite):
         self.running_left.play()
 
         self.is_running = False
+        self.image = self.standing_pic
 
         # These give us information for where to put things
         self.rect = self.standing_pic.get_rect()
@@ -42,28 +43,26 @@ class Reagan(pygame.sprite.Sprite):
         self.screen_size = screen_size
 
         # These give us position info
-        self.pos = [20, 0]
+        # self.pos = [20, 0]
         self.speed_x = 0
         self.speed_y = 0
+
 
         # A list of sprites we can bump against
         self.level = None
 
     def update(self):
-        self.pos[0] += self.speed_x
+        # self.pos[0] += self.speed_x
+        # TODO: Change this to see if it works better...
         self.calc_grav()
-        self.check_for_platforms()
-        self.pos[1] += self.speed_y
-        self.blit_me()
-
-    def check_for_platforms(self):
+        self.rect.x += self.speed_x
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
             if self.speed_x > 0:
                 self.rect.right = block.rect.left
             elif self.speed_x < 0:
                 self.rect.left = block.rect.right
-
+        self.rect.y += self.speed_y
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
             if self.speed_y > 0:
@@ -71,16 +70,23 @@ class Reagan(pygame.sprite.Sprite):
             elif self.speed_y < 0:
                 self.rect.top = block.rect.bottom
             self.speed_y = 0
+        self.check_for_platforms()
+        # self.pos[1] += self.speed_y
+
+#        self.blit_me()
+
+    def check_for_platforms(self):
+        pass
 
     def move(self, action):
         if action == 'R':
-            self.speed_x = 5
+            self.speed_x = 7
         elif action == 'L':
-            self.speed_x = -5
+            self.speed_x = -7
         elif action == 'J':
             self.jump()
         elif action == 'S':
-            self.speed_x *= 3
+            self.speed_x *= 1.5
         elif action == 'RU' or 'LU':
             self.speed_x = 0
         elif action == 'SU':
@@ -90,28 +96,28 @@ class Reagan(pygame.sprite.Sprite):
         self.rect.y += 2
         platform_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         self.rect.y -= 2
-        if len(platform_hit_list) > 0 or self.pos[1] >= self.screen_size[1] - + self.rect.bottom:
-            self.speed_y = - 10
+        if len(platform_hit_list) > 0 or self.rect.bottom >= self.screen_size[1]:
+            self.speed_y = - 20
 
     def calc_grav(self):
         if self.speed_y == 0:
-            self.speed_y = 1.5
+            self.speed_y = 2.5
         else:
-            self.speed_y += .5
+            self.speed_y += 1.5
 
         # Unless we are on the ground.
         # TODO: Change this to just platforms
-        if self.pos[1] >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
+        if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
             self.speed_y = 0
-            self.pos[1] = self.screen_size[1] - self.rect.height
+            self.rect.y = self.screen_size[1] - self.rect.height
 
     def blit_me(self):
         if self.speed_x > 0:
-            self.running_right.blit(self.screen, self.pos)
+            self.running_right.blit(self.screen, self.rect)
         elif self.speed_x < 0:
-            self.running_left.blit(self.screen, self.pos)
+            self.running_left.blit(self.screen, self.rect)
         else:
-            self.screen.blit(self.standing_pic, self.pos)
+            self.screen.blit(self.standing_pic, self.rect)
 
 
 # For now, we will just use coins

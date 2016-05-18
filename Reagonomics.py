@@ -60,6 +60,7 @@ def main():
         current_level.update()
         current_level.draw(screen)
         active_sprite_list.update()
+        reagan.blit_me()
         pygame.display.flip()
 
     pygame.quit()
