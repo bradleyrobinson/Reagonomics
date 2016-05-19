@@ -1,6 +1,7 @@
 import pygame
 import GameSprites
 import os
+import random
 
 
 class Level(object):
@@ -24,6 +25,7 @@ class Level(object):
             screen.fill((255, 255, 255))
         self.platform_list.draw(screen)
         self.enemy_list.draw(screen)
+        self.money_list.draw(screen)
         self.player.update()
 
 
@@ -42,6 +44,13 @@ class Level_01(Level):
 
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
+
+        # Just a test:
+        for i in range(1, 51):
+            money_pos = [random.randrange(0, 1000), random.randrange(-10000, -20, 20)]
+            speed = i / 2.0
+            money = GameSprites.FallingMoney(money_pos, speed, 1)
+            self.money_list.add(money)
         # Go through the array above and add platforms
         for platform in level:
             block = GameSprites.Platform(platform[0], platform[1])

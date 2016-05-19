@@ -51,6 +51,7 @@ class Reagan(pygame.sprite.Sprite):
         self.speed_x = 0
         self.speed_y = 0
 
+        self.score = 0
         self.health = 3
 
         # A list of sprites we can bump against
@@ -74,6 +75,13 @@ class Reagan(pygame.sprite.Sprite):
             elif self.speed_y < 0:
                 self.rect.top = block.rect.bottom
             self.speed_y = 0
+        self.get_money()
+
+    def get_money(self):
+        money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
+        for money in money_hit_list:
+            self.score += 5
+        print self.score
 
     def move(self, action):
         if action == 'R':
@@ -127,8 +135,9 @@ class Reagan(pygame.sprite.Sprite):
 # For now, we will just use coins
 # TODO: Include different values for the game
 class FallingMoney(pygame.sprite.Sprite):
-    def __init__(self, screen, screen_size, pos, speed, value_point):
+    def __init__(self, pos, speed, value_point):
         pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('Images', 'coin_01.png'))
         self.spinning_coin = pyganim.PygAnimation([
                                                    (os.path.join('Images', 'coin_02.png'), 0.1),
                                                    (os.path.join('Images', 'coin_03.png'), 0.1),
@@ -142,19 +151,15 @@ class FallingMoney(pygame.sprite.Sprite):
         # Get the image ready
 
         # Properties of the falling money here...
-        self.pos = pos
         self.speed = speed
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = pos
 
         # Info so that we can blit the coin image onto the screen
-        self.screen = screen
-        self.screen_size = screen_size
 
     def update(self):
-        self.pos[1] += self.speed
-        self.blit_me()
+        self.rect.y += self.speed
 
-    def blit_me(self):
-        self.spinning_coin.blit(self.screen, self.pos)
 
 
 class Platform(pygame.sprite.Sprite):
