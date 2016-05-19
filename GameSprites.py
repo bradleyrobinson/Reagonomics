@@ -9,6 +9,7 @@ import os
 
 GREEN = (10, 255, 10)
 
+
 class Reagan(pygame.sprite.Sprite):
     def __init__(self, screen, screen_size):
         pygame.sprite.Sprite.__init__(self)
@@ -50,11 +51,13 @@ class Reagan(pygame.sprite.Sprite):
         self.speed_x = 0
         self.speed_y = 0
 
+        self.health = 3
+
         # A list of sprites we can bump against
         self.level = None
 
     def update(self):
-        # TODO: Change this to see if it works better...
+        self.update_health()
         self.calc_grav()
         self.rect.x += self.speed_x * self.is_running
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
@@ -102,9 +105,9 @@ class Reagan(pygame.sprite.Sprite):
 
         # Unless we are on the ground.
         # TODO: Change this to just platforms
-        if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
-            self.speed_y = 0
-            self.rect.y = self.screen_size[1] - self.rect.height
+        #if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
+        #    self.speed_y = 0
+        #    self.rect.y = self.screen_size[1] - self.rect.height
 
     def blit_me(self):
         if self.speed_x > 0 and self.speed_y == 0:
@@ -115,6 +118,10 @@ class Reagan(pygame.sprite.Sprite):
             self.jumping.blit(self.screen, self.rect)
         else:
             self.screen.blit(self.standing_pic, self.rect)
+
+    def update_health(self):
+        if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
+            self.health = 0
 
 
 # For now, we will just use coins

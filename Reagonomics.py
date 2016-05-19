@@ -5,6 +5,7 @@ import pygame
 import random
 import GameSprites
 import Levels
+import copy
 
 
 # Function that determines if an important
@@ -36,7 +37,27 @@ def get_events(reagan):
             reagan.move(control_player(event))
     return True
 
+
+def play_level(screen, level, active_sprite_list, reagan):
+    play = True
+    level_won = True
+    while play:
+        clock.tick(60)
+        play = get_events(reagan)
+        level.update()
+        level.draw(screen)
+        active_sprite_list.update()
+        reagan.blit_me()
+        pygame.display.flip()
+        if reagan.health == 0:
+            play = False
+            level_won = False
+    return level_won
+
+
 clock = pygame.time.Clock()
+
+
 def main():
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
@@ -52,15 +73,20 @@ def main():
     level_list = [level_1]
     current_level = level_list[current_level_no]
     reagan.level = current_level
+    continue_level = play_level(screen, current_level, active_sprite_list, reagan)
     play = True
     while play:
-        clock.tick(60)
-        play = get_events(reagan)
-        current_level.update()
-        current_level.draw(screen)
-        active_sprite_list.update()
-        reagan.blit_me()
-        pygame.display.flip()
+        while continue_level:
+            current_level_no += 1
+            current_level = level_list[current_level_no]
+            reagan.level = current_level
+            continue_level = play_level(screen, current_level, active_sprite_list, reagan)
+        else:
+            current_level = level_list[current_level_no]
+            reagan.health = 3
+            reagan.rect.x, reagan.rect.y = current_level.player_pos
+            reagan.level = current_level
+            continue_level = play_level(screen, current_level, active_sprite_list, reagan)
 
     pygame.quit()
 
