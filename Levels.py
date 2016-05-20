@@ -47,6 +47,7 @@ class Level_01(Level):
 
         # Just a test:
         for i in range(1, 51):
+            print i
             money_pos = [random.randrange(0, 1000), random.randrange(-10000, -20, 20)]
             speed = i / 2.0
             money = GameSprites.FallingMoney(money_pos, speed, 1)

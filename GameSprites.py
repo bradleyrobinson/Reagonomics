@@ -81,7 +81,8 @@ class Reagan(pygame.sprite.Sprite):
         money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
         for money in money_hit_list:
             self.score += 5
-        print self.score
+        # TODO: Put the score on the screen
+        # TODO: Display the corporate sponsorship stuff too
 
     def move(self, action):
         if action == 'R':
