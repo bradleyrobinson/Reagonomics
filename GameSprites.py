@@ -6,6 +6,7 @@
 import pygame
 import pyganim
 import os
+import random
 
 GREEN = (10, 255, 10)
 
@@ -39,6 +40,10 @@ class Reagan(pygame.sprite.Sprite):
                                                   (os.path.join('Images', 'ronaldus_jump_1.png'), 0.01),
                                                   (os.path.join('Images', 'ronaldus_jump_2.png'), 0.01)])
 
+        
+        
+        
+
 
         # These assure that the images are animated
         self.running_right.play()
@@ -56,7 +61,6 @@ class Reagan(pygame.sprite.Sprite):
         # These give us position info
         self.speed_x = 0
         self.speed_y = 0
-
         self.score = 0
         self.health = 3
 
@@ -82,18 +86,24 @@ class Reagan(pygame.sprite.Sprite):
                 self.rect.top = block.rect.bottom
             self.speed_y = 0
         self.get_money()
+        
+            
 
     def get_money(self):
         money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
         for money in money_hit_list:
             self.score += 5
-        print self.score
+            #Coin collecting sound
+            money_sound = pygame.mixer.Sound(os.path.join('Sounds', 'coin5.ogg'))
+            money_sound.play()
+        
+        
 
     def move(self, action):
         if action == 'R':
-            self.speed_x = 7
+            self.speed_x = 5
         elif action == 'L':
-            self.speed_x = -7
+            self.speed_x = -5
         elif action == 'J':
             self.jump()
         # TODO: Let's change this sometime soon... It doesn't work yet
@@ -109,7 +119,7 @@ class Reagan(pygame.sprite.Sprite):
         platform_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         self.rect.y -= 2
         if len(platform_hit_list) > 0 or self.rect.bottom >= self.screen_size[1]:
-            self.speed_y = - 20
+            self.speed_y = - 24
 
     def calc_grav(self):
         if self.speed_y == 0:
@@ -167,9 +177,12 @@ class FallingMoney(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.y += self.speed
-
-
-
+        if self.rect.y > 701:
+            money_reset_y = random.randrange(-100, -10)
+            money_reset_x = random.randrange(0, 1100)
+            self.rect.y = money_reset_y
+            self.rect.x = money_reset_x
+        
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height):
         pygame.sprite.Sprite.__init__(self)
