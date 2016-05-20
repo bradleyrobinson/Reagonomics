@@ -35,10 +35,16 @@ class Reagan(pygame.sprite.Sprite):
                                              (os.path.join('Images', 'ronaldus_jump_1.png'), 0.01),
                                              (os.path.join('Images', 'ronaldus_jump_2.png'), 0.01)])
 
+        self.jumping_left = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_jump_0_left.png'), 10),
+                                                  (os.path.join('Images', 'ronaldus_jump_1.png'), 0.01),
+                                                  (os.path.join('Images', 'ronaldus_jump_2.png'), 0.01)])
+
+
         # These assure that the images are animated
         self.running_right.play()
         self.running_left.play()
         self.jumping.play()
+        self.jumping_left.play()
 
         self.is_running = 1
 
@@ -122,6 +128,8 @@ class Reagan(pygame.sprite.Sprite):
             self.running_right.blit(self.screen, self.rect)
         elif self.speed_x < 0 and self.speed_y == 0:
             self.running_left.blit(self.screen, self.rect)
+        elif self.speed_y< 0 and self.speed_x < 0:
+            self.jumping_left.blit(self.screen, self.rect)
         elif self.speed_y < 0:
             self.jumping.blit(self.screen, self.rect)
         else:
