@@ -45,6 +45,12 @@ class Level_01(Level):
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
 
+        # Just a test
+
+        for i in range(20):
+            money_pos = [random.randrange(0, 1100,), random.randrange(-1000, -10, 500)]
+            speed = i / 2
+            money = GameSprites.FallingMoney(money_pos, speed, 0)
         # Just a test:
         for i in range(1, 51):
             print i
