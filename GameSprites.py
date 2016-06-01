@@ -108,8 +108,10 @@ class Reagan(pygame.sprite.Sprite):
             self.jump()
         # TODO: Let's change this sometime soon... It doesn't work yet
         elif action == 'S':
-            self.is_running = 1
-        elif action == 'RU' or 'LU':
+            self.is_running = 1.5
+        elif action == 'RU':
+            self.speed_x = 0
+        elif action == 'LU':
             self.speed_x = 0
         elif action == 'SU':
             self.is_running = 1

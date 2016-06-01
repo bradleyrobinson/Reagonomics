@@ -70,7 +70,8 @@ def main():
     active_sprite_list.add(reagan)
     current_level_no = 0
     level_1 = Levels.Level_01(reagan)
-    level_list = [level_1]
+    level_2 = Levels.Level2(reagan)
+    level_list = [level_1, level_2]
     current_level = level_list[current_level_no]
     reagan.level = current_level
     continue_level = play_level(screen, current_level, active_sprite_list, reagan)
