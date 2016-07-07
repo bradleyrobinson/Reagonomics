@@ -7,6 +7,7 @@ import pygame
 import GameSprites
 import random
 
+
 class GameStatus:
     def __init__(self, screen, screen_size):
         self.current_player = Player('NA')

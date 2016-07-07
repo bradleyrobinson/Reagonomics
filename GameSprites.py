@@ -63,6 +63,8 @@ class Reagan(pygame.sprite.Sprite):
         self.speed_y = 0
         self.score = 0
         self.health = 3
+        self.right_down = False
+        self.left_down = False
 
         # A list of sprites we can bump against
         self.level = None
@@ -87,8 +89,6 @@ class Reagan(pygame.sprite.Sprite):
             self.speed_y = 0
         self.get_money()
 
-
-
     def get_money(self):
         money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
         for money in money_hit_list:
@@ -98,23 +98,33 @@ class Reagan(pygame.sprite.Sprite):
             money_sound.play()
 
 
-
     def move(self, action):
         if action == 'R':
-            self.speed_x = 5
+            self.right_down = True
+            self.speed_x = 8
         elif action == 'L':
-            self.speed_x = -5
+            self.left_down = True
+            self.speed_x = -8
         elif action == 'J':
             self.jump()
-        # TODO: Let's change this sometime soon... It doesn't work yet
-        elif action == 'S':
-            self.is_running = 1.5
+        # TODO: Let's change this sometime soon... It doesn't work yet, or maybe let's do without this.
+        #elif action == 'S':
+        #    self.is_running = 1.5
         elif action == 'RU':
-            self.speed_x = 0
+            self.right_down = False
+            if self.left_down is True:
+                self.speed_x = -8
+            else:
+                self.speed_x = 0
         elif action == 'LU':
-            self.speed_x = 0
+            self.left_down = False
+            if self.right_down is True:
+                self.speed_x = 8
+            else:
+                self.speed_x = 0
         elif action == 'SU':
             self.is_running = 1
+        self.last_action = action
 
     def jump(self):
         self.rect.y += 2

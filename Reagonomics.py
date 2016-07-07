@@ -2,11 +2,11 @@
 #
 
 import pygame
-import random
 import GameSprites
 import Levels
-import copy
 
+pygame.init()
+font = pygame.font.SysFont('Calibri', 34)
 
 # Function that determines if an important
 def control_player(event):
@@ -38,16 +38,20 @@ def get_events(reagan):
     return True
 
 
+
+
 def play_level(screen, level, active_sprite_list, reagan):
     play = True
     level_won = True
     while play:
-        clock.tick(60)
+        time_passed = clock.tick_busy_loop(60)
         play = get_events(reagan)
         level.update()
+        countdown_text = font.render("Time Remaining: " + str(int(level.countdown)), 1, (0, 0, 0))
         level.draw(screen)
         active_sprite_list.update()
         reagan.blit_me()
+        screen.blit(countdown_text, [100, 100])
         pygame.display.flip()
         if reagan.health == 0:
             play = False
@@ -61,7 +65,6 @@ clock = pygame.time.Clock()
 def main():
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
-    pygame.init()
     SIZE = [1200, 701]
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption('Reagonomics')
