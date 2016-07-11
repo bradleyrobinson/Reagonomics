@@ -17,8 +17,9 @@ class Level(object):
         self.coin_amount = None
         self.coin_total = None
         self.current_coin_count = 0
+        self.player_score = 0
         self.level_speed_range = 0
-        self.countdown = 200
+        self.countdown = None
         # This lets us calculate the current_time
 
     # TODO: Keep track of the time the player has been in the level,
@@ -28,6 +29,7 @@ class Level(object):
         self.countdown -= .05
         self.coin_generation()
         self.platform_list.update()
+        self.player_score = self.player.score
         self.enemy_list.update()
         self.money_list.update()
 
@@ -52,6 +54,18 @@ class Level(object):
         self.money_list.draw(screen)
         self.player.update()
 
+    # The following functions must be present in all levels
+    # TODO: It seems that there is a little bug here, after falling a certain amount of times coins no longer re-appear
+    def reset(self):
+        self.platform_list = pygame.sprite.Group()
+        self.enemy_list = pygame.sprite.Group()
+        self.money_list = pygame.sprite.Group()
+        self.set_level()
+        self.player.score = 0
+
+    def set_level(self):
+        pass
+
 
 class Level_01(Level):
     """ Definition for level 1. """
@@ -59,6 +73,9 @@ class Level_01(Level):
     def __init__(self, player):
         """ Create level 1. """
         Level.__init__(self, player)
+        self.set_level()
+
+    def set_level(self):
         # coin_frequency, coin_amount, coin_total
         # Array with width, height, x, and y of platform
         level = [[370, 70, 0, 630],
@@ -73,6 +90,7 @@ class Level_01(Level):
         self.coin_total = 100
         # self.start_time = start_time
         self.level_speed_range = [2, 5]
+        self.countdown = 60
 
         for platform in level:
             block = GameSprites.Platform(platform[0], platform[1])
@@ -81,24 +99,9 @@ class Level_01(Level):
             block.player = self.player
             self.platform_list.add(block)
 
-        # Just a test
-        """
-        for i in range(20):
-            money_pos = [random.randrange(0, 1100,), random.randrange(-1000, -10, 500)]
-            speed = i / 2
-            money = GameSprites.FallingMoney(money_pos, speed, 0)
-        # Just a test:
-        for i in range(1, 51):
-            print i
-            money_pos = [random.randrange(0, 1000), random.randrange(-10000, -20, 20)]
-            speed = i / 2.0
-            money = GameSprites.FallingMoney(money_pos, speed, 1)
-            self.money_list.add(money)
-        # Go through the array above and add platforms
-        """
 
-
-# TODO: Correct this level to make sure that it follows the correct pattern.
+# TODO: Correct this level to make sure that it follows the correct pattern. It is a test, so it all can be scrapped.
+# In fact, this level currently just crashes.
 class Level2(Level):
     def __init__(self, player):
         Level.__init__(self, player)

@@ -39,7 +39,6 @@ def get_events(reagan):
 
 
 
-
 def play_level(screen, level, active_sprite_list, reagan):
     play = True
     level_won = True
@@ -47,11 +46,14 @@ def play_level(screen, level, active_sprite_list, reagan):
         time_passed = clock.tick_busy_loop(60)
         play = get_events(reagan)
         level.update()
+        # TODO: Cleanup here, make one constant for the text color
         countdown_text = font.render("Time Remaining: " + str(int(level.countdown)), 1, (0, 0, 0))
+        current_score_text = font.render("Level Score: " + str(int(level.player_score)), 1, (0, 0, 0))
         level.draw(screen)
         active_sprite_list.update()
         reagan.blit_me()
         screen.blit(countdown_text, [100, 100])
+        screen.blit(current_score_text , [100, 130])
         pygame.display.flip()
         if reagan.health == 0:
             play = False
@@ -88,6 +90,7 @@ def main():
         else:
             current_level = level_list[current_level_no]
             reagan.health = 3
+            current_level.reset()
             reagan.rect.x, reagan.rect.y = current_level.player_pos
             reagan.level = current_level
             continue_level = play_level(screen, current_level, active_sprite_list, reagan)

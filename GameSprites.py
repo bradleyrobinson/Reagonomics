@@ -61,10 +61,13 @@ class Reagan(pygame.sprite.Sprite):
         # These give us position info
         self.speed_x = 0
         self.speed_y = 0
-        self.score = 0
         self.health = 3
         self.right_down = False
         self.left_down = False
+
+        # Total points:
+        self.total_money = 0
+        self.score = 0
 
         # A list of sprites we can bump against
         self.level = None
