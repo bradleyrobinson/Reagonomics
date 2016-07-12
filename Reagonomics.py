@@ -58,6 +58,10 @@ def play_level(screen, level, active_sprite_list, reagan):
         if reagan.health == 0:
             play = False
             level_won = False
+            level.death_screen(screen, font, clock)
+        elif level.countdown <= 0:
+            play = False
+            level_won = True
     return level_won
 
 
@@ -74,8 +78,8 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     active_sprite_list.add(reagan)
     current_level_no = 0
-    level_1 = Levels.Level_01(reagan)
-    level_2 = Levels.Level2(reagan)
+    level_1 = Levels.Level_01(reagan, SIZE)
+    level_2 = Levels.Level2(reagan, SIZE)
     level_list = [level_1, level_2]
     current_level = level_list[current_level_no]
     reagan.level = current_level

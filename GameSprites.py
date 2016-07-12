@@ -98,6 +98,7 @@ class Reagan(pygame.sprite.Sprite):
             self.score += 5
             #Coin collecting sound
             money_sound = pygame.mixer.Sound(os.path.join('Sounds', 'coin5.ogg'))
+            money_sound.set_volume(.1)
             money_sound.play()
 
 
