@@ -4,6 +4,25 @@ import os
 import random
 
 
+class ClassConscience:
+    def __init__(self):
+        self.needle_position = 0
+        self.bar_image = pygame.image.load(os.path.join('Images', 'class_conscience.png')).convert_alpha()
+        self.needle_image = pygame.image.load(os.path.join('Images', 'needle.png')).convert_alpha()
+        self.bar_image.set_colorkey((0, 0, 0))
+        self.needle_image.set_colorkey((0, 0, 0))
+
+    def increase_money(self, money_change):
+        self.needle_position += money_change
+
+    def draw(self, screen):
+        screen.blit(self.bar_image, (400, 200))
+        # TODO: Fix the positioning on this
+        screen.blit(self.needle_image, (475+self.needle_position, 200))
+
+
+
+
 class Dimmer:
     def __init__(self, keepalive=0):
         self.keepalive = keepalive
@@ -38,24 +57,38 @@ class Dimmer:
 
 
 class Level(object):
-    def __init__(self, player, screen_size):
+    def __init__(self, player, screen, screen_size):
+        self.screen = screen
+
         self.platform_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.money_list = pygame.sprite.Group()
         self.player = player
+        # This is for the dimmer effect.
+        self.dimmer = Dimmer()
+        self.screen_size = screen_size
+
+        # This variable is modified whenever a coin is not caught:
+        self.coins_dropped = 0
+        # This is a health like bar indicating how many coins made it to the working class:
+        # TODO: Everything with class conscience.
+        # This is just a proof of concept.
+        self.working_class = ClassConscience()
+
         # Here are variables that must be defined in the Level child, assuring that the level makes sense and works
         self.player_pos = None
         self.background = None
+        # Coin related stuff
         self.coin_frequency = None
         self.coin_amount = None
         self.coin_total = None
         self.current_coin_count = 0
+        # Things related to challenge
         self.player_score = 0
         self.level_speed_range = 0
         self.countdown = None
-        # This is for the dimmer effect.
-        self.dimmer = Dimmer()
-        self.screen_size = screen_size
+
+
     # TODO: Keep track of the time the player has been in the level,
     # and cap that level to a certain time, so they don't die everytime
 
@@ -66,6 +99,7 @@ class Level(object):
         self.player_score = self.player.score
         self.enemy_list.update()
         self.money_list.update()
+        self.working_class.needle_position = self.coins_dropped
 
     def coin_generation(self):
         # TODO: Make the coin generation dependent on time, and only use the coin_frequency variable as a cap for the
@@ -74,7 +108,7 @@ class Level(object):
             money_pos = [random.randrange(0, 1100, 20), random.randrange(-10, 0)]
             speed = random.uniform(self.level_speed_range[0], self.level_speed_range[1])
             self.level_speed_range[1] += .02
-            money = GameSprites.FallingMoney(money_pos, speed, 0)
+            money = GameSprites.FallingMoney(money_pos, speed, self)
             self.money_list.add(money)
             self.current_coin_count += 1
 
@@ -87,6 +121,7 @@ class Level(object):
         self.enemy_list.draw(screen)
         self.money_list.draw(screen)
         self.player.update()
+        self.working_class.draw(self.screen)
 
     # The following functions must be present in all levels
     def reset(self):
@@ -120,7 +155,7 @@ class Level(object):
             clock.tick_busy_loop(60)
             screen.blit(death_text, [(self.screen_size[0]/2-font.size(death_string)[0]/2), self.screen_size[1]/2])
             pygame.display.flip()
-        """ This will be awesome!
+        """ This will allow the player to continue or not...
         continue_game = False
         while not continue_game:
             self.dimmer.dim(darken_factor=end_darkness)
@@ -133,9 +168,9 @@ class Level(object):
 class Level_01(Level):
     """ Definition for level 1. """
 
-    def __init__(self, player, screen_size):
+    def __init__(self, player, screen, screen_size):
         """ Create level 1. """
-        Level.__init__(self, player, screen_size)
+        Level.__init__(self, player, screen, screen_size)
         self.set_level()
 
     def set_level(self):
@@ -154,7 +189,7 @@ class Level_01(Level):
         # self.start_time = start_time
         self.level_speed_range = [2, 5]
         # TODO: Change the time, this is for testing purposes
-        self.countdown = 10
+        self.countdown = 45
 
         for platform in level:
             block = GameSprites.Platform(platform[0], platform[1])
@@ -167,9 +202,9 @@ class Level_01(Level):
 # TODO: Correct this level to make sure that it follows the correct pattern. It is a test, so it all can be scrapped.
 # In fact, this level currently just crashes.
 class Level2(Level):
-    def __init__(self, player, screen_size):
+    def __init__(self, player, screen, screen_size):
         """ Create level 1. """
-        Level.__init__(self, player, screen_size)
+        Level.__init__(self, player, screen, screen_size)
         self.set_level()
 
     def set_level(self):
@@ -185,9 +220,9 @@ class Level2(Level):
         self.coin_amount = 6
         self.coin_total = 100
         # self.start_time = start_time
-        self.level_speed_range = [2, 5]
+        self.level_speed_range = [4, 6]
         # TODO: Change the time, this is for testing purposes
-        self.countdown = 10
+        self.countdown = 45
 
         for platform in level:
             block = GameSprites.Platform(platform[0], platform[1])

@@ -8,6 +8,7 @@ import Levels
 pygame.init()
 font = pygame.font.SysFont('Calibri', 34)
 
+
 # Function that determines if an important
 def control_player(event):
     if event.type == pygame.KEYDOWN:
@@ -78,8 +79,8 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     active_sprite_list.add(reagan)
     current_level_no = 0
-    level_1 = Levels.Level_01(reagan, SIZE)
-    level_2 = Levels.Level2(reagan, SIZE)
+    level_1 = Levels.Level_01(reagan, screen, SIZE)
+    level_2 = Levels.Level2(reagan, screen, SIZE)
     level_list = [level_1, level_2]
     current_level = level_list[current_level_no]
     reagan.level = current_level

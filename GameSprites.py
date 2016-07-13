@@ -169,7 +169,7 @@ class Reagan(pygame.sprite.Sprite):
 # For now, we will just use coins
 # TODO: Include different values for the game
 class FallingMoney(pygame.sprite.Sprite):
-    def __init__(self, pos, speed, value_point):
+    def __init__(self, pos, speed, current_level):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join('Images', 'coin_01.png'))
         self.spinning_coin = pyganim.PygAnimation([
@@ -189,11 +189,14 @@ class FallingMoney(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = pos
 
-        # Info so that we can blit the coin image onto the screen
+        # We get the level so that we can let the object know when things have fallen off the screen
+        self.current_level = current_level
 
     def update(self):
         self.rect.y += self.speed
+        # If the coin goes below the screen, reposition it randomly and add to the levels coins dropped.
         if self.rect.y > 701:
+            self.current_level.coins_dropped += 1
             money_reset_y = random.randrange(-100, -10)
             money_reset_x = random.randrange(0, 1100)
             self.rect.y = money_reset_y
