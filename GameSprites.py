@@ -62,6 +62,7 @@ class Reagan(pygame.sprite.Sprite):
         self.speed_x = 0
         self.speed_y = 0
         self.health = 3
+        self.is_revolution = False
         self.right_down = False
         self.left_down = False
 
@@ -104,17 +105,20 @@ class Reagan(pygame.sprite.Sprite):
 
     def move(self, action):
         if action == 'R':
-            self.right_down = True
-            self.speed_x = 8
+            if (self.rect.x + self.rect.width) >= (self.screen_size[0]):
+                self.speed_x = 0
+            else:
+                self.right_down = True
+                self.speed_x = 8
         elif action == 'L':
             self.left_down = True
-            self.speed_x = -8
+            if self.rect.x <= 0:
+                self.speed_x = 0
+            else:
+                self.speed_x = -8
         elif action == 'J':
             self.jump()
-        # TODO: Let's change this sometime soon... It doesn't work yet, or maybe let's do without this.
-        #elif action == 'S':
-        #    self.is_running = 1.5
-        elif action == 'RU':
+        if action == 'RU':
             self.right_down = False
             if self.left_down is True:
                 self.speed_x = -8
@@ -122,8 +126,9 @@ class Reagan(pygame.sprite.Sprite):
                 self.speed_x = 0
         elif action == 'LU':
             self.left_down = False
-            if self.right_down is True:
+            if self.right_down is True and (self.rect.x + self.rect.width) < (self.screen_size[0]):
                 self.speed_x = 8
+                pass
             else:
                 self.speed_x = 0
         elif action == 'SU':
@@ -143,12 +148,6 @@ class Reagan(pygame.sprite.Sprite):
         else:
             self.speed_y += 1.5
 
-        # Unless we are on the ground.
-        # TODO: Change this to just platforms
-        #if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
-        #    self.speed_y = 0
-        #    self.rect.y = self.screen_size[1] - self.rect.height
-
     def blit_me(self):
         if self.speed_x > 0 and self.speed_y == 0:
             self.running_right.blit(self.screen, self.rect)
@@ -161,13 +160,18 @@ class Reagan(pygame.sprite.Sprite):
         else:
             self.screen.blit(self.standing_pic, self.rect)
 
-    def update_health(self):
+    def update_health(self, is_revolution=False):
         if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
             self.health = 0
+        if is_revolution:
+            self.health = 0
+            self.is_revolution = True
+        elif not is_revolution:
+            self.is_revolution = False
 
 
 # For now, we will just use coins
-# TODO: Include different values for the game
+# TODO: Include different values for the game, but this is much later when the game is running well
 class FallingMoney(pygame.sprite.Sprite):
     def __init__(self, pos, speed, current_level):
         pygame.sprite.Sprite.__init__(self)

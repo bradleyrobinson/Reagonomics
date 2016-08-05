@@ -1,15 +1,19 @@
 # Reagonomics, by Bradley Robinson and Kason Hudman
 #
+# NOTE: This section is deprecated!
 
 import pygame
 import GameSprites
 import Levels
+import GameState
 
+
+"""
 pygame.init()
 font = pygame.font.SysFont('Calibri', 34)
 
 
-# Function that determines if an important
+# Function that determines what keys have been pressed
 def control_player(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_RIGHT:
@@ -102,6 +106,13 @@ def main():
 
     pygame.quit()
 
+
+"""
+
+def main():
+    game = GameState.Game()
+    game.game_loop()
+    pygame.quit()
 
 if __name__ == '__main__':
     main()

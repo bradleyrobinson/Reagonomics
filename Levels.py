@@ -7,18 +7,29 @@ import random
 class ClassConscience:
     def __init__(self):
         self.needle_position = 0
+        self.move_needle_to = 0
         self.bar_image = pygame.image.load(os.path.join('Images', 'class_conscience.png')).convert_alpha()
         self.needle_image = pygame.image.load(os.path.join('Images', 'needle.png')).convert_alpha()
         self.bar_image.set_colorkey((0, 0, 0))
         self.needle_image.set_colorkey((0, 0, 0))
+        self.revolution_point = 0
 
-    def increase_money(self, money_change):
-        self.needle_position += money_change
+    def reset(self):
+        self.needle_position = 0
+        self.move_needle_to = 0
+
+    def is_revolution(self):
+        if self.needle_position > (self.bar_image.get_rect()[2] - self.needle_image.get_rect()[2]):
+            return True
+        else:
+            return False
 
     def draw(self, screen):
         screen.blit(self.bar_image, (400, 200))
         # TODO: Fix the positioning on this
-        screen.blit(self.needle_image, (475+self.needle_position, 200))
+        if self.needle_position < self.move_needle_to:
+            self.needle_position += .5
+        screen.blit(self.needle_image, (400+self.needle_position, 200))
 
 
 
@@ -99,7 +110,9 @@ class Level(object):
         self.player_score = self.player.score
         self.enemy_list.update()
         self.money_list.update()
-        self.working_class.needle_position = self.coins_dropped
+        self.working_class.move_needle_to = self.coins_dropped*4
+        if self.working_class.is_revolution():
+            self.player.update_health(is_revolution=True)
 
     def coin_generation(self):
         # TODO: Make the coin generation dependent on time, and only use the coin_frequency variable as a cap for the
@@ -130,10 +143,13 @@ class Level(object):
         self.money_list = pygame.sprite.Group()
         self.current_coin_count = 0
         self.player_score = 0
+        self.coins_dropped = 0
         self.level_speed_range = 0
         self.set_level()
         self.player.score = 0
+        self.working_class.reset()
 
+    # TODO: Get this working so the player can continue or leave the game
     def death_decision(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -146,7 +162,11 @@ class Level(object):
         return False, False
 
     def death_screen(self, screen, font, clock):
-        death_string = "Mistakes were made."
+        # TODO: Figure out why the proletariat screen doesn't show up.
+        if not self.player.is_revolution:
+            death_string = "Mistakes were made."
+        else:
+            death_string = "The proletariat has arisen!"
         death_text = font.render(death_string, 1, (255, 255, 255))
         end_darkness = 100
         for i in range(0, end_darkness):
@@ -165,7 +185,7 @@ class Level(object):
         pass
 
 
-class Level_01(Level):
+class Level1(Level):
     """ Definition for level 1. """
 
     def __init__(self, player, screen, screen_size):
@@ -199,8 +219,7 @@ class Level_01(Level):
             self.platform_list.add(block)
 
 
-# TODO: Correct this level to make sure that it follows the correct pattern. It is a test, so it all can be scrapped.
-# In fact, this level currently just crashes.
+
 class Level2(Level):
     def __init__(self, player, screen, screen_size):
         """ Create level 1. """
@@ -213,14 +232,14 @@ class Level2(Level):
                  [210, 70, 520, 490],
                  [370, 70, 840, 630],
                  ]
-
+        # TODO: This level probably is realllly hard. It's just to make sure we die properly
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
-        self.coin_frequency = 10
+        self.coin_frequency = 30
         self.coin_amount = 6
         self.coin_total = 100
         # self.start_time = start_time
-        self.level_speed_range = [4, 6]
+        self.level_speed_range = [10, 20]
         # TODO: Change the time, this is for testing purposes
         self.countdown = 45
 
