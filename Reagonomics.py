@@ -70,7 +70,7 @@ def play_level(screen, level, active_sprite_list, reagan):
     return level_won
 
 
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() J
 
 
 def main():
