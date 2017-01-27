@@ -30,6 +30,7 @@ class Game:
         # TODO: When the menu is ready, change this to "MENU"
         self.game_state = "PLAY"
 
+        self.pause_menu = PauseMenu(self.screen, self.font, self.SIZE)
         # Player information
         self.reagan = GameSprites.Reagan(self.screen, self.SIZE)
 
@@ -79,16 +80,21 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     if self.game_state == "MENU":
                         self.game_state = "QUIT"
+                    elif self.game_state == 'PAUSE':
+                        self.game_state = 'PLAY'
                     else:
                         self.game_state = "PAUSE"
 
                 # All the other keys:
                 elif event.key == pygame.K_RIGHT:
                     self.ginput.right = True
+                    self.ginput.right_time = pygame.time.get_ticks()
                 elif event.key == pygame.K_LEFT:
                     self.ginput.left = True
+                    self.ginput.left_time = pygame.time.get_ticks()
                 elif event.key == pygame.K_UP:
                     self.ginput.up = True
+                    self.ginput.up_time = pygame.time.get_ticks()
                 elif event.key == pygame.K_RETURN:
                     self.ginput.enter = True
 
@@ -131,36 +137,104 @@ class Game:
             self.reagan.level = self.current_level
             self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
 
-
     def pause_game(self):
-        pass
+        # TODO: Figure out why this isn't working properly
+        if self.ginput.up:
+            self.pause_menu.move_up()
+        elif self.ginput.down:
+            self.pause_menu.move_down()
+        elif self.ginput.enter:
+            selected = self.pause_menu.select_option()
+            self.menu_selected(selected)
+        self.pause_menu.render_pause()
+
+    def menu_selected(self, option):
+        if option == 'CONTINUE':
+            self.game_state = 'PLAY'
+        elif option == 'EXIT TO MENU':
+            pass # TODO
+        elif option == 'EXIT TO DESKTOP':
+            pygame.quit()
+
 
 
 # This class is just to hold the buttons pressed
 class GameInput:
     def __init__(self):
+        # The directions/button presses (i.e. self.up, self.down, etc.) tell us what buttons are being pressed
         self.up = False
         self.down = False
         self.right = False
         self.left = False
         self.enter = False
+        # The direction times tell us which has been pressed most recently. This assures that the most recent button
+        # press gets priority
+        self.left_time = 0
+        self.right_time = 0
+        self.down_time = 0
+        self.up_time = 0
 
-    # TODO: This gives a string for now, but let's make it so the Reagan class receives a bool instead
     def player_events(self, player):
         if self.up:
             player.move('J')
             self.up = False
-        if self.right:
-            # TODO: The movement is off-balanced, and it has to do with the order of the if and else statements.
+        if self.right and self.right_time > self.left_time:
             player.move('R')
         elif not self.right:
             player.move('RU')
-        if self.left:
+        if self.left and self.left_time > self.right_time:
             player.move('L')
         elif not self.left:
             player.move('LU')
 
+class PauseMenu:
+    def __init__(self, display, font, display_size):
+        self.selected = 0
+        self.options = ['CONTINUE', 'EXIT TO MENU', 'EXIT TO DESKTOP']
+        self.WHITE = (0,0,0)
+        self.BLUE = (0, 162, 232)
+        self.display = display
+        self.middle = (display_size[0]/2, display_size[1]/2)
+        self.font = font
+        self.top = self.get_top()
+        # Used to make sure we don't change menu options too quickly
+        self.last_change = 0
 
+    def end_menu(self):
+        self.selected = 0
 
+    def move_down(self):
+        self.selected += 1
+        if self.selected > len(self.options):
+            self.selected = 0
+
+    def move_up(self):
+        self.selected -= 1
+        if self.selected < 0:
+            self.selected = len(self.options) - 1
+
+    def get_top(self):
+        height = 0
+        for txt in self.options:
+            height += self.font.size(txt)[1]
+        return height
+
+    def render_pause(self):
+        y = self.middle[1] - self.top/2
+        for i in range(len(self.options)):
+            option = self.options[i]
+            color = ()
+            if i == int(self.selected):
+                color = self.WHITE
+            else:
+                color = self.BLUE
+            pos = [self.middle[0] - self.font.size(option)[0]/2, y]
+            text = self.font.render(option, 1, color)
+            self.display.blit(text, pos)
+            y += text.get_height()
+        pygame.display.flip()
+
+    def select_option(self):
+        return self.options[int(self.selected)]
 
 
