@@ -6,12 +6,8 @@ The GameStatus will hold a player object, so we can keep track of who is playing
 import pygame
 import GameSprites
 import Levels
-import random
+import os
 
-
-# TODO: We need to take everything in the Reagonomics file and basically structure it here. There will be a class,
-# which will include the stuff that Pygame needs to run. This will centralize all important variables and objects so
-# we don't have to do weird backward calls.
 class Game:
     def __init__(self):
         pygame.init()
@@ -27,10 +23,10 @@ class Game:
 
         # Input information
         self.ginput = GameInput()
-        # TODO: When the menu is ready, change this to "MENU"
-        self.game_state = "PLAY"
+        self.game_state = "MENU"
 
-        self.pause_menu = PauseMenu(self.screen, self.font, self.SIZE)
+        self.pause_menu = Menu(self.screen, self.font, self.SIZE, ['CONTINUE', 'EXIT TO MENU', 'EXIT TO DESKTOP'])
+        self.main_menu = Menu(self.screen, self.font, self.SIZE, ['NEW GAME', 'SETTINGS', 'EXIT TO DESKTOP'], use_background=True)
         # Player information
         self.reagan = GameSprites.Reagan(self.screen, self.SIZE)
 
@@ -97,6 +93,8 @@ class Game:
                     self.ginput.up_time = pygame.time.get_ticks()
                 elif event.key == pygame.K_RETURN:
                     self.ginput.enter = True
+                elif event.key == pygame.K_DOWN:
+                    self.ginput.down = True
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -107,9 +105,21 @@ class Game:
                     self.ginput.up = False
                 elif event.key == pygame.K_RETURN:
                     self.ginput.enter = False
+                elif event.key == pygame.K_DOWN:
+                    self.ginput.down = False
 
     def display_menu(self):
-        pass
+        if self.ginput.up:
+            self.ginput.up = False
+            self.main_menu.move_up()
+        elif self.ginput.down:
+            self.ginput.down = False
+            self.main_menu.move_down()
+        elif self.ginput.enter:
+            self.ginput.enter = False
+            selected = self.main_menu.select_option()
+            self.menu_selected(selected)
+        self.main_menu.render_pause()
 
     def play_level(self, events):
         self.ginput.player_events(self.reagan)
@@ -138,10 +148,12 @@ class Game:
             self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
 
     def pause_game(self):
-        # TODO: Figure out why this isn't working properly
+        # TODO: Make this available for all menus
         if self.ginput.up:
+            self.ginput.up = False
             self.pause_menu.move_up()
         elif self.ginput.down:
+            self.ginput.down = False
             self.pause_menu.move_down()
         elif self.ginput.enter:
             selected = self.pause_menu.select_option()
@@ -152,9 +164,15 @@ class Game:
         if option == 'CONTINUE':
             self.game_state = 'PLAY'
         elif option == 'EXIT TO MENU':
-            pass # TODO
+            self.game_state = 'MENU'
         elif option == 'EXIT TO DESKTOP':
             pygame.quit()
+        if option == 'NEW GAME':
+            self.game_state = 'PLAY'
+            self.reagan.health = 3
+            self.current_level.reset
+            self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
+            self.reagan.level = self.current_level
 
 
 
@@ -187,25 +205,28 @@ class GameInput:
         elif not self.left:
             player.move('LU')
 
-class PauseMenu:
-    def __init__(self, display, font, display_size):
+
+# Class for creating menus.
+class Menu:
+    def __init__(self, display, font, display_size, options, use_background=False):
         self.selected = 0
-        self.options = ['CONTINUE', 'EXIT TO MENU', 'EXIT TO DESKTOP']
+        self.options = options
         self.WHITE = (0,0,0)
         self.BLUE = (0, 162, 232)
         self.display = display
         self.middle = (display_size[0]/2, display_size[1]/2)
         self.font = font
         self.top = self.get_top()
-        # Used to make sure we don't change menu options too quickly
-        self.last_change = 0
+        self.use_background = use_background
+        if use_background:
+            self.background = pygame.image.load(os.path.join('Images', 'reaganomics_background.png'))
 
     def end_menu(self):
         self.selected = 0
 
     def move_down(self):
         self.selected += 1
-        if self.selected > len(self.options):
+        if self.selected >= len(self.options):
             self.selected = 0
 
     def move_up(self):
@@ -220,6 +241,8 @@ class PauseMenu:
         return height
 
     def render_pause(self):
+        if self.use_background:
+            self.display.blit(self.background, (0, 0))
         y = self.middle[1] - self.top/2
         for i in range(len(self.options)):
             option = self.options[i]
@@ -236,5 +259,3 @@ class PauseMenu:
 
     def select_option(self):
         return self.options[int(self.selected)]
-
-
