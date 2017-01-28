@@ -209,8 +209,10 @@ class FallingMoney(pygame.sprite.Sprite):
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height):
         pygame.sprite.Sprite.__init__(self)
-
+        self.left = pygame.image.load(os.path.join('Images', 'plat1.png'))
+        self.middle = pygame.image.load(os.path.join('Images', 'plat2.png'))
+        self.right = pygame.image.load(os.path.join('Images', 'plat3.png'))
         self.image = pygame.Surface([width, height])
-        self.image.fill(GREEN)
+        self.image.blit(self.middle, [0,0])
 
         self.rect = self.image.get_rect()
