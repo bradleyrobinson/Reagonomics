@@ -196,9 +196,9 @@ class Level1(Level):
     def set_level(self):
         # coin_frequency, coin_amount, coin_total
         # Array with width, height, x, and y of platform
-        level = [[370, 70, 0, 630],
-                 [210, 70, 520, 630],
-                 [370, 70, 840, 630],
+        level = [[3, 1, 0, 630],
+                 [2, 1, 520, 630],
+                 [3, 1, 840, 630],
                  ]
 
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
@@ -228,14 +228,44 @@ class Level2(Level):
 
     def set_level(self):
         #Here are the platforms
-        level = [[350, 70, 0, 630],
-                 [210, 70, 520, 490],
-                 [370, 70, 840, 630],
+        level = [[3, 1, 0, 630],
+                 [2, 1, 520, 490],
+                 [3, 1, 840, 630],
+                 ]
+        self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
+        self.player_pos = [10, 500]
+        self.coin_frequency = 9
+        self.coin_amount = 6
+        self.coin_total = 100
+        # self.start_time = start_time
+        self.level_speed_range = [5, 10]
+        self.countdown = 60
+
+        for platform in level:
+            block = GameSprites.Platform(platform[0], platform[1])
+            block.rect.x = platform[2]
+            block.rect.y = platform[3]
+            block.player = self.player
+            self.platform_list.add(block)
+
+class Level3(Level):
+    def __init__(self, player, screen, screen_size):
+        """ Create level 1. """
+        Level.__init__(self, player, screen, screen_size)
+        self.set_level()
+
+    def set_level(self):
+        #Here are the platforms
+        level = [[3, 1, 0, 630],
+                 [1, 1, 520, 630],
+                 [3, 1, 840, 630],
+                 [1, 1, 340, 400],
+                 [1, 1, 550, 300]
                  ]
         # TODO: This level probably is realllly hard. It's just to make sure we die properly
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
-        self.coin_frequency = 30
+        self.coin_frequency = 10
         self.coin_amount = 6
         self.coin_total = 100
         # self.start_time = start_time

@@ -26,7 +26,8 @@ class Game:
         self.game_state = "MENU"
 
         self.pause_menu = Menu(self.screen, self.font, self.SIZE, ['CONTINUE', 'EXIT TO MENU', 'EXIT TO DESKTOP'])
-        self.main_menu = Menu(self.screen, self.font, self.SIZE, ['NEW GAME', 'SETTINGS', 'EXIT TO DESKTOP'], use_background=True)
+        self.main_menu = Menu(self.screen, self.font, self.SIZE, ['REAGANOMICS: THE GAME', 'NEW GAME', 'SETTINGS', 'SELECT LEVEL', 'EXIT TO DESKTOP'], use_background=True)
+        self.select_level = Menu(self.screen, self.font, self.SIZE, ['SELECT A LEVEL', 'LEVEL 1', 'LEVEL 2', 'LEVEL 3', 'BACK'], use_background=True)
         # Player information
         self.reagan = GameSprites.Reagan(self.screen, self.SIZE)
 
@@ -34,10 +35,11 @@ class Game:
         # TODO: As levels are created, add them here
         level_1 = Levels.Level1(self.reagan, self.screen, self.SIZE)
         level_2 = Levels.Level2(self.reagan, self.screen, self.SIZE)
+        level_3 = Levels.Level3(self.reagan, self.screen, self.SIZE)
 
         self.current_level_no = 0
         # TODO: Also add the level objects to this level list
-        self.level_list = [level_1, level_2]
+        self.level_list = [level_1, level_2, level_3]
         self.current_level = self.level_list[self.current_level_no]
         self.reagan.level = self.current_level
 
@@ -57,6 +59,8 @@ class Game:
                 self.play_level(events)
             elif self.game_state == "PAUSE":
                 self.pause_game()
+            elif self.game_state == 'L_SELECT':
+                self.level_select()
             pygame.display.flip()
 
     def quit_prompt(self):
@@ -165,15 +169,48 @@ class Game:
             self.game_state = 'PLAY'
         elif option == 'EXIT TO MENU':
             self.game_state = 'MENU'
+            self.main_menu.selected = 0
         elif option == 'EXIT TO DESKTOP':
             pygame.quit()
-        if option == 'NEW GAME':
+        elif option == 'NEW GAME':
             self.game_state = 'PLAY'
             self.reagan.health = 3
-            self.current_level.reset
+            self.current_level.reset()
             self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
             self.reagan.level = self.current_level
+        elif option == 'SELECT LEVEL':
+            self.game_state = 'L_SELECT'
 
+    def level_select(self):
+        if self.ginput.up:
+            self.ginput.up = False
+            self.select_level.move_up()
+        elif self.ginput.down:
+            self.ginput.down = False
+            self.select_level.move_down()
+        elif self.ginput.enter:
+            self.ginput.enter = False
+            selected = self.select_level.select_option()
+            if selected == 'BACK':
+                self.game_state = 'MENU'
+            else:
+                self.l_selection(selected)
+        self.select_level.render_pause()
+
+    def l_selection(self, selected):
+        if selected == 'LEVEL 1':
+            self.level_list[0] = Levels.Level1(self.reagan, self.screen, self.SIZE)
+            self.current_level_no = 0
+        elif selected == 'LEVEL 2':
+            self.level_list[1] = Levels.Level2(self.reagan, self.screen, self.SIZE)
+            self.current_level_no = 1
+        elif selected == 'LEVEL 3':
+            self.level_list[2] = Levels.Level3(self.reagan, self.screen, self.SIZE)
+            self.current_level_no = 2
+        # TODO: Also add the level objects to this level list
+        self.current_level = self.level_list[self.current_level_no]
+        self.game_state = 'PLAY'
+        self.reagan.level = self.current_level
 
 
 # This class is just to hold the buttons pressed
