@@ -212,8 +212,11 @@ class Platform(pygame.sprite.Sprite):
         self.left = pygame.image.load(os.path.join('Images', 'plat1.png'))
         self.middle = pygame.image.load(os.path.join('Images', 'plat2.png'))
         self.right = pygame.image.load(os.path.join('Images', 'plat3.png'))
-
+        self.left.set_colorkey((0, 0, 0,))
+        self.middle.set_colorkey((0, 0, 0))
+        self.right.set_colorkey((0, 0, 0))
         self.image = pygame.Surface([width*128, height*93])
+        self.image.set_colorkey((0, 0, 0))
         if width == 2:
             self.image.blit(self.left, [0,0])
             self.image.blit(self.right, [128,0])
@@ -223,3 +226,4 @@ class Platform(pygame.sprite.Sprite):
                 self.image.blit(self.middle, [128*i, 0])
             self.image.blit(self.right, [(width-1)*128,0])
         self.rect = self.image.get_rect()
+        

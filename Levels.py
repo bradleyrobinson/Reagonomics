@@ -3,6 +3,8 @@ import GameSprites
 import os
 import random
 
+pygame.mixer.pre_init(44100,16,2,4096)
+
 
 class ClassConscience:
     def __init__(self):
@@ -200,7 +202,9 @@ class Level1(Level):
                  [2, 1, 520, 630],
                  [3, 1, 840, 630],
                  ]
-
+        pygame.mixer.music.load("Sounds/BonzoGoestoBitburg.ogg")
+        pygame.mixer.music.set_volume(0.9)
+        pygame.mixer.music.play(-1)
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
         self.coin_frequency = 10
