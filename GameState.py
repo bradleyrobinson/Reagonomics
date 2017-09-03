@@ -8,7 +8,8 @@ import GameSprites
 import Levels
 import os
 
-class Game:
+
+class Game(object):
     def __init__(self):
         pygame.init()
         # TODO: Use the pygame.font.Font instead, since it is better with PyInstall package
@@ -43,10 +44,9 @@ class Game:
         self.current_level = self.level_list[self.current_level_no]
         self.reagan.level = self.current_level
 
-
-
-    # TODO: game_loop stuff!
     def game_loop(self):
+        """The official game loop. Depending on the game state, this decides which function to call.
+        """
         exit = False
         while not exit:
             self.clock.tick_busy_loop(60)
@@ -56,7 +56,7 @@ class Game:
             elif self.game_state == "MENU":
                 self.display_menu()
             elif self.game_state == "PLAY":
-                self.play_level(events)
+                self.play_level()
             elif self.game_state == "PAUSE":
                 self.pause_game()
             elif self.game_state == 'L_SELECT':
@@ -68,13 +68,16 @@ class Game:
         pygame.quit()
         return True
 
-    # This gets all key inputs, making sure that we always get it all, even if it doesn't matter.
-    # All inputs are sent to the object ginput, that can be used to pass information as needed
     def get_events(self):
+        """This gets all key inputs, making sure that we always get it all, even if it doesn't matter.
+        """
         events = pygame.event.get()
+        # Goes through the events the OS gives us
         for event in events:
+            # QUIT is a special event separate from the keyboard
             if event.type == pygame.QUIT:
                 self.game_state = "QUIT"
+            # We need to know if the user presses the keyboard
             elif event.type == pygame.KEYDOWN:
                 # If the player presses escape, we either quit the game or go the pause menu
                 if event.key == pygame.K_ESCAPE:
@@ -100,6 +103,7 @@ class Game:
                 elif event.key == pygame.K_DOWN:
                     self.ginput.down = True
 
+            # So the player isn't stuck going in a direction forever, we have to catch KEYUP events.
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     self.ginput.right = False
@@ -113,6 +117,8 @@ class Game:
                     self.ginput.down = False
 
     def display_menu(self):
+        """Logic for showing the menu.
+        """
         if self.ginput.up:
             self.ginput.up = False
             self.main_menu.move_up()
@@ -125,12 +131,15 @@ class Game:
             self.menu_selected(selected)
         self.main_menu.render_pause()
 
-    def play_level(self, events):
+    def play_level(self):
+        """ This puts things on the screen and calls the other functions so things are displayed on the screen.
+        """
         self.ginput.player_events(self.reagan)
         self.current_level.update()
         countdown_text = self.font.render("Time Remaining: " + str(int(self.current_level.countdown)), 1, (0, 0, 0))
         current_score_text = self.font.render("Level Score: " + str(int(self.current_level.player_score)), 1, (0, 0, 0))
         self.current_level.draw(self.screen)
+        # Reagan is separately rendered since he is animated.
         self.reagan.update()
         self.reagan.blit_me()
         self.screen.blit(countdown_text, [100, 100])
@@ -139,6 +148,8 @@ class Game:
         self.check_level_state()
 
     def check_level_state(self):
+        """Sees if reagan has died or we have moved on in the game.
+        """
         if self.reagan.health == 0:
             self.current_level.death_screen(self.screen, self.font, self.clock)
             self.reagan.health = 3
@@ -146,13 +157,15 @@ class Game:
             self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
             self.reagan.level = self.current_level
         elif self.current_level.countdown <= 0:
+            # TODO: This is where we would call the winning animation function!
             self.current_level_no += 1
             self.current_level = self.level_list[self.current_level_no]
             self.reagan.level = self.current_level
             self.reagan.rect.x, self.reagan.rect.y = self.current_level.player_pos
 
     def pause_game(self):
-        # TODO: Make this available for all menus
+        """
+        """
         if self.ginput.up:
             self.ginput.up = False
             self.pause_menu.move_up()
@@ -213,8 +226,9 @@ class Game:
         self.reagan.level = self.current_level
 
 
-# This class is just to hold the buttons pressed
-class GameInput:
+class GameInput(object):
+    """Class to keep track of all the buttons pressed so we don't have to check a million places.
+    """
     def __init__(self):
         # The directions/button presses (i.e. self.up, self.down, etc.) tell us what buttons are being pressed
         self.up = False
@@ -230,6 +244,13 @@ class GameInput:
         self.up_time = 0
 
     def player_events(self, player):
+        """Takes a Reagan object and tells it what way to move, if it needs to.
+
+        Parameters
+        ----------
+        player : GameSprites.Reagan
+            Object representing the player, which has all the movement logic built in.
+        """
         if self.up:
             player.move('J')
             self.up = False
@@ -243,8 +264,22 @@ class GameInput:
             player.move('LU')
 
 
-# Class for creating menus.
-class Menu:
+class Menu(object):
+    """All the logic to display and use a menu.
+
+    Attributes
+    ----------
+    display : pygame.display
+        This should be a static object shared between many objects, which represents the screen.
+    font : pygame.Font
+        The font to display the menu with.
+    display_size : tuple or list
+        The size of the window that the game is in.
+    options : list
+        A list of strings of options that will be displayed.
+    use_background : bool
+        Whether or not the background should be used.
+    """
     def __init__(self, display, font, display_size, options, use_background=False):
         self.selected = 0
         self.options = options
