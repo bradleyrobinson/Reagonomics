@@ -3,15 +3,29 @@
 - FallingMoney(),
 
 """
-import pygame
-import pyganim
 import os
 import random
+import pygame
+import pyganim
 
 GREEN = (10, 255, 10)
 
 
 class Reagan(pygame.sprite.Sprite):
+    """This is the player that makes it all happen! Includes all the display and movement logic.
+
+    Attributes
+    ----------
+    standing_pic : pygame.image
+        The image of Reagan just standing there
+    running_right : pyganim.PygAnimation
+        The animation of Reagan running right
+    running_left : pyganim.PygAnimation
+        Take a wild guess here
+    jumping : pyganim.PygAnimation
+        Reagan... jumping
+    
+    """
     def __init__(self, screen, screen_size):
         pygame.sprite.Sprite.__init__(self)
         # Image information
@@ -39,11 +53,6 @@ class Reagan(pygame.sprite.Sprite):
         self.jumping_left = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_jump_0_left.png'), 10),
                                                   (os.path.join('Images', 'ronaldus_jump_1.png'), 0.01),
                                                   (os.path.join('Images', 'ronaldus_jump_2.png'), 0.01)])
-
-
-
-
-
 
         # These assure that the images are animated
         self.running_right.play()
@@ -77,6 +86,7 @@ class Reagan(pygame.sprite.Sprite):
         self.update_health()
         self.calc_grav()
         self.rect.x += self.speed_x * self.is_running
+        # Calculates whether we are touching something
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
             if self.speed_x > 0:
@@ -95,7 +105,7 @@ class Reagan(pygame.sprite.Sprite):
 
     def get_money(self):
         money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
-        for money in money_hit_list:
+        for _ in money_hit_list:
             self.score += 5
             #Coin collecting sound
             money_sound = pygame.mixer.Sound(os.path.join('Sounds', 'coin5.ogg'))
@@ -206,13 +216,38 @@ class FallingMoney(pygame.sprite.Sprite):
             self.rect.y = money_reset_y
             self.rect.x = money_reset_x
 
+
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height):
         pygame.sprite.Sprite.__init__(self)
         self.left = pygame.image.load(os.path.join('Images', 'plat1.png'))
         self.middle = pygame.image.load(os.path.join('Images', 'plat2.png'))
         self.right = pygame.image.load(os.path.join('Images', 'plat3.png'))
-        self.image = pygame.Surface([width, height])
-        self.image.blit(self.middle, [0,0])
-
+        self.left.set_colorkey((0, 0, 0,))
+        self.middle.set_colorkey((0, 0, 0))
+        self.right.set_colorkey((0, 0, 0))
+        self.image = pygame.Surface([width*128, height*93])
+        self.image.set_colorkey((0, 0, 0))
+        if width == 2:
+            self.image.blit(self.left, [0,0])
+            self.image.blit(self.right, [128,0])
+        elif width > 2:
+            self.image.blit(self.left, [0,0])
+            for i in range (1, width-1):
+                self.image.blit(self.middle, [128*i, 0])
+            self.image.blit(self.right, [(width-1)*128,0])
         self.rect = self.image.get_rect()
+        
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, current_level, life):
+        pygame.sprite.Sprite.__init__(self)
+        self.current_level = level
+        self.life = life
+
+    
+    def update(self):
+        pass
+
+
+
