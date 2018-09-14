@@ -47,12 +47,12 @@ class Game(object):
     def game_loop(self):
         """The official game loop. Depending on the game state, this decides which function to call.
         """
-        exit = False
-        while not exit:
+        quit_game = False
+        while not quit_game:
             self.clock.tick_busy_loop(60)
             events = self.get_events()
             if self.game_state == "QUIT":
-                exit = self.quit_prompt()
+                quit_game = self.quit_prompt()
             elif self.game_state == "MENU":
                 self.display_menu()
             elif self.game_state == "PLAY":

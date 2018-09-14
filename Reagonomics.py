@@ -1,10 +1,8 @@
-# Reagonomics, by Bradley Robinson and Kason Hudman
-#
-# NOTE: This section is deprecated!
+"""
+Reagonomics, by Bradley Robinson and Kason Hudman
+"""
 
 import pygame
-import GameSprites
-import Levels
 import GameState
 
 

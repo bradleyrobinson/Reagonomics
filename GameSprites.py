@@ -1,12 +1,18 @@
 """ Inside this class, the most important game sprites are included:
-- Reagan(), which is controlled by the player
-- FallingMoney(),
-
+Classes:
+    * Reagan
+    * FallingMoney
+    * MoneyDropper
+    * Platform
+    * 
 """
 import os
 import random
+from collections import namedtuple
+
 import pygame
 import pyganim
+
 
 GREEN = (10, 255, 10)
 
@@ -33,12 +39,12 @@ class Reagan(pygame.sprite.Sprite):
         self.standing_pic.set_colorkey((0, 0, 0))
         # Animated Sprite Information
         self.running_right = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_run_0.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_1.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_2.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_3.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_4.png'), 0.1),
-                                             (os.path.join('Images', 'ronaldus_run_5.png'), 0.1)])
-        
+                                                   (os.path.join('Images', 'ronaldus_run_1.png'), 0.1),
+                                                   (os.path.join('Images', 'ronaldus_run_2.png'), 0.1),
+                                                   (os.path.join('Images', 'ronaldus_run_3.png'), 0.1),
+                                                   (os.path.join('Images', 'ronaldus_run_4.png'), 0.1),
+                                                   (os.path.join('Images', 'ronaldus_run_5.png'), 0.1)])
+
         self.running_left = pyganim.PygAnimation([(os.path.join('Images', 'ronaldus_runleft_0.png'), 0.1),
                                                   (os.path.join('Images', 'ronaldus_runleft_1.png'), 0.1),
                                                   (os.path.join('Images', 'ronaldus_runleft_2.png'), 0.1),
@@ -74,6 +80,7 @@ class Reagan(pygame.sprite.Sprite):
         self.is_revolution = False
         self.right_down = False
         self.left_down = False
+        self.last_action = None
 
         # Total points:
         self.total_money = 0
@@ -81,6 +88,8 @@ class Reagan(pygame.sprite.Sprite):
 
         # A list of sprites we can bump against
         self.level = None
+
+        self.hurt_countdown = 0
 
     def update(self):
         self.update_health()
@@ -94,6 +103,11 @@ class Reagan(pygame.sprite.Sprite):
             elif self.speed_x < 0:
                 self.rect.left = block.rect.right
         self.rect.y += self.speed_y
+        self.block_check()
+        self.enemy_check()
+        self.get_money()
+
+    def block_check(self):
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
             if self.speed_y > 0:
@@ -101,17 +115,29 @@ class Reagan(pygame.sprite.Sprite):
             elif self.speed_y < 0:
                 self.rect.top = block.rect.bottom
             self.speed_y = 0
-        self.get_money()
+
+    def enemy_check(self):
+        enemy_hit_list = pygame.sprite.spritecollide(self, self.level.enemy_list, False)
+        for enemy in enemy_hit_list:
+            get_hurt = enemy.check_collide()
+            if get_hurt:
+                print(self.hurt_countdown, self.health)
+                self.hurt()
+            # todo figure out a behavior to indicate the life was affected
 
     def get_money(self):
         money_hit_list = pygame.sprite.spritecollide(self, self.level.money_list, True)
         for _ in money_hit_list:
             self.score += 5
-            #Coin collecting sound
+            # Coin collecting sound
             money_sound = pygame.mixer.Sound(os.path.join('Sounds', 'coin5.ogg'))
             money_sound.set_volume(.1)
             money_sound.play()
 
+    def hurt(self):
+        if self.hurt_countdown == 0:
+            self.health -= 1
+            self.hurt_countdown = 60*3
 
     def move(self, action):
         if action == 'R':
@@ -163,7 +189,7 @@ class Reagan(pygame.sprite.Sprite):
             self.running_right.blit(self.screen, self.rect)
         elif self.speed_x < 0 and self.speed_y == 0:
             self.running_left.blit(self.screen, self.rect)
-        elif self.speed_y< 0 and self.speed_x < 0:
+        elif self.speed_y < 0 and self.speed_x < 0:
             self.jumping_left.blit(self.screen, self.rect)
         elif self.speed_y < 0:
             self.jumping.blit(self.screen, self.rect)
@@ -171,6 +197,8 @@ class Reagan(pygame.sprite.Sprite):
             self.screen.blit(self.standing_pic, self.rect)
 
     def update_health(self, is_revolution=False):
+        if self.hurt_countdown > 0:
+            self.hurt_countdown -= 1
         if self.rect.y >= self.screen_size[1] - self.rect.height and self.speed_y >= 0:
             self.health = 0
         if is_revolution:
@@ -212,13 +240,35 @@ class FallingMoney(pygame.sprite.Sprite):
         if self.rect.y > 701:
             self.current_level.coins_dropped += 1
             money_reset_y = random.randrange(-100, -10)
-            money_reset_x = random.randrange(0, 1100)
+            money_reset_x = random.randrange(0, 1100, 45)
             self.rect.y = money_reset_y
             self.rect.x = money_reset_x
+        self.image = self.spinning_coin.getCurrentFrame()
+
+
+class MoneyDropper(object):
+    # todo: this isn't finished yet
+    def __init__(self, x, pattern):
+        """ 
+        
+        :param int x: the x coordinate where the dropper is 
+        :param list pattern: 
+        """
+        self.x = x
+        self.pattern = pattern
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, width, height):
+    def __init__(self, width, height, x, y):
+        """ 
+        
+        :param int width: int, this is how many blocks there should be from left to right
+        :param int height: int, this is the height, usually one for a flat platform
+        :param x: pixel where the platform starts on the x-axis
+        :param y: pixel where the platform starts on the y-axis
+        """
+        self.img_width = 128
+
         pygame.sprite.Sprite.__init__(self)
         self.left = pygame.image.load(os.path.join('Images', 'plat1.png'))
         self.middle = pygame.image.load(os.path.join('Images', 'plat2.png'))
@@ -226,28 +276,72 @@ class Platform(pygame.sprite.Sprite):
         self.left.set_colorkey((0, 0, 0,))
         self.middle.set_colorkey((0, 0, 0))
         self.right.set_colorkey((0, 0, 0))
-        self.image = pygame.Surface([width*128, height*93])
+        self.image = pygame.Surface([width*self.img_width, height*93])
         self.image.set_colorkey((0, 0, 0))
         if width == 2:
-            self.image.blit(self.left, [0,0])
-            self.image.blit(self.right, [128,0])
+            self.image.blit(self.left, [0, 0])
+            self.image.blit(self.right, [self.img_width, 0])
         elif width > 2:
-            self.image.blit(self.left, [0,0])
-            for i in range (1, width-1):
-                self.image.blit(self.middle, [128*i, 0])
-            self.image.blit(self.right, [(width-1)*128,0])
+            self.image.blit(self.left, [0, 0])
+            for i in range(1, width-1):
+                self.image.blit(self.middle, [self.img_width*i, 0])
+            self.image.blit(self.right, [(width-1)*self.img_width, 0])
         self.rect = self.image.get_rect()
-        
+        self.rect.x = x
+        self.rect.y = y
+
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, current_level, life):
-        pygame.sprite.Sprite.__init__(self)
-        self.current_level = level
-        self.life = life
-
+    """ Base class for enemies.
     
-    def update(self):
+    
+    """
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.main_image = None
+        self.rect = None
+        self.x = x
+        self.y = y
+
+    def initialize(self):
+        self.rect = self.main_image.get_rect()
+
+    def check_collide(self):
+        # todo: add an error here
         pass
 
 
+class Sandanista(Enemy):
+    """ A guy that paces back and forth and shoots sometimes
+    
+    """
+    def __init__(self, x, y, end_x, direction=1):
+        Enemy.__init__(self, x, y)
+        # todo: add some animations
+        self.end_x = end_x
+        self.main_image = pygame.image.load(os.path.join('Images', 'sandanista.png')).convert_alpha()
+        self.health = 1
+        self.direction = direction
+        self.image = self.main_image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
+    def update(self):
+        """"""
+        if self.rect.x > self.end_x[1] or self.rect.x < self.end_x[0]:
+            self.direction *= -1
+        self.rect.x += self.direction
+
+    def check_collide(self):
+        return True
+
+
+class LiberalReporter(Enemy):
+    pass
+
+
+class MarxistProfessor(Enemy):
+    pass
+
+EnemyData = namedtuple('EnemyData', ['enemy_object', 'x', 'y', 'end_x', 'direction'])
