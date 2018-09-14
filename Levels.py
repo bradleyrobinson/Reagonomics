@@ -3,7 +3,7 @@ import GameSprites
 import os
 import random
 
-pygame.mixer.pre_init(44100,16,2,4096)
+pygame.mixer.pre_init(44100, 16, 2, 4096)
 
 
 class ClassConscience:
@@ -32,8 +32,6 @@ class ClassConscience:
         if self.needle_position < self.move_needle_to:
             self.needle_position += .5
         screen.blit(self.needle_image, (400+self.needle_position, 200))
-
-
 
 
 class Dimmer:
@@ -68,7 +66,6 @@ class Dimmer:
                 self.buffer = None
 
 
-
 class Level(object):
     def __init__(self, player, screen, screen_size):
         self.screen = screen
@@ -88,7 +85,7 @@ class Level(object):
         # This is just a proof of concept.
         self.working_class = ClassConscience()
 
-        # Here are variables that must be defined in the Level child, assuring that the level makes sense and works
+        # variables that must be defined in any child of Level child
         self.player_pos = None
         self.background = None
         # Coin related stuff
@@ -96,14 +93,18 @@ class Level(object):
         self.coin_amount = None
         self.coin_total = None
         self.current_coin_count = 0
-        # Things related to challenge
+
+        # Level holds the local state (level state) of the game
         self.player_score = 0
-        self.level_speed_range = 0
+        self.level_speed_range = []
         self.countdown = None
 
-
-    # TODO: Keep track of the time the player has been in the level,
-    # and cap that level to a certain time, so they don't die everytime
+        self.song = "Sounds/BonzoGoestoBitburg.ogg"
+        # Each time the level is reset we want to reset the objects to their
+        # original state, and raw coordinates and data are a simple way to
+        # guarantee that they will be the same each time
+        self.platform_raw_coordinates = []
+        self.enemy_raw_data = []
 
     def update(self):
         self.countdown -= .05
@@ -138,7 +139,6 @@ class Level(object):
         self.player.update()
         self.working_class.draw(self.screen)
 
-    # The following functions must be present in all levels
     def reset(self):
         self.platform_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
@@ -146,13 +146,13 @@ class Level(object):
         self.current_coin_count = 0
         self.player_score = 0
         self.coins_dropped = 0
-        self.level_speed_range = 0
         self.set_level()
         self.player.score = 0
         self.working_class.reset()
 
     # TODO: Get this working so the player can continue or leave the game
-    def death_decision(self):
+    @staticmethod
+    def death_decision():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -177,14 +177,29 @@ class Level(object):
             clock.tick_busy_loop(60)
             screen.blit(death_text, [(self.screen_size[0]/2-font.size(death_string)[0]/2), self.screen_size[1]/2])
             pygame.display.flip()
-        """ This will allow the player to continue or not...
-        continue_game = False
-        while not continue_game:
-            self.dimmer.dim(darken_factor=end_darkness)
-            continue_game, decision = self.death_decision()
-        """
+
+        # continue_game = False
+        # while not continue_game:
+        #     self.dimmer.dim(darken_factor=end_darkness)
+        #     continue_game, decision = self.death_decision()
+
     def set_level(self):
-        pass
+        pygame.mixer.music.load(self.song)
+        pygame.mixer.music.set_volume(0.9)
+        pygame.mixer.music.play(-1)
+        self.set_platforms()
+        self.set_enemies()
+
+    def set_platforms(self):
+        for platform in self.platform_raw_coordinates:
+            block = GameSprites.Platform(*platform)
+            block.player = self.player
+            self.platform_list.add(block)
+
+    def set_enemies(self):
+        for enemy in self.enemy_raw_data:
+            enemy_sprite = enemy.enemy_object(enemy.x, enemy.y, enemy.end_x, enemy.direction)
+            self.enemy_list.add(enemy_sprite)
 
 
 class Level1(Level):
@@ -193,49 +208,35 @@ class Level1(Level):
     def __init__(self, player, screen, screen_size):
         """ Create level 1. """
         Level.__init__(self, player, screen, screen_size)
-        self.set_level()
-
-    def set_level(self):
-        # coin_frequency, coin_amount, coin_total
-        # Array with width, height, x, and y of platform
-        level = [[3, 1, 0, 630],
-                 [2, 1, 520, 630],
-                 [3, 1, 840, 630],
-                 ]
-        pygame.mixer.music.load("Sounds/BonzoGoestoBitburg.ogg")
-        pygame.mixer.music.set_volume(0.9)
-        pygame.mixer.music.play(-1)
+        self.platform_raw_coordinates = [[3, 1, 0, 630],
+                                         [2, 1, 520, 630],
+                                         [3, 1, 840, 630],
+                                         ]
+        self.enemy_raw_data = [
+            # they are magic number for now, Sandanista height=79, width=92, block width=128
+            GameSprites.EnemyData(GameSprites.Sandanista, 520, 630-79, (520, 520+(128*2)-92), 1)
+        ]
+        self.level_speed_range = [2, 5]
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
         self.coin_frequency = 10
         self.coin_amount = 6
         self.coin_total = 100
-        # self.start_time = start_time
-        self.level_speed_range = [2, 5]
+
         # TODO: Change the time, this is for testing purposes
         self.countdown = 45
 
-        for platform in level:
-            block = GameSprites.Platform(platform[0], platform[1])
-            block.rect.x = platform[2]
-            block.rect.y = platform[3]
-            block.player = self.player
-            self.platform_list.add(block)
-
+        self.set_level()
 
 
 class Level2(Level):
     def __init__(self, player, screen, screen_size):
         """ Create level 1. """
         Level.__init__(self, player, screen, screen_size)
-        self.set_level()
-
-    def set_level(self):
-        #Here are the platforms
-        level = [[3, 1, 0, 630],
-                 [2, 1, 520, 490],
-                 [3, 1, 840, 630],
-                 ]
+        self.platform_raw_coordinates = [[3, 1, 0, 630],
+                                         [2, 1, 520, 490],
+                                         [3, 1, 840, 630],
+                                         ]
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
         self.coin_frequency = 9
@@ -245,41 +246,27 @@ class Level2(Level):
         self.level_speed_range = [5, 10]
         self.countdown = 60
 
-        for platform in level:
-            block = GameSprites.Platform(platform[0], platform[1])
-            block.rect.x = platform[2]
-            block.rect.y = platform[3]
-            block.player = self.player
-            self.platform_list.add(block)
+        Level.set_level(self)
+
 
 class Level3(Level):
     def __init__(self, player, screen, screen_size):
         """ Create level 1. """
         Level.__init__(self, player, screen, screen_size)
-        self.set_level()
+        self.platform_raw_coordinates = [[3, 1, 0, 630],
+                                         [1, 1, 520, 630],
+                                         [3, 1, 840, 630],
+                                         [1, 1, 340, 400],
+                                         [1, 1, 550, 300]
+                                         ]
 
-    def set_level(self):
-        #Here are the platforms
-        level = [[3, 1, 0, 630],
-                 [1, 1, 520, 630],
-                 [3, 1, 840, 630],
-                 [1, 1, 340, 400],
-                 [1, 1, 550, 300]
-                 ]
-        # TODO: This level probably is realllly hard. It's just to make sure we die properly
         self.background = pygame.image.load(os.path.join("Images", "reaganomics_background.png"))
         self.player_pos = [10, 500]
         self.coin_frequency = 10
         self.coin_amount = 6
         self.coin_total = 100
-        # self.start_time = start_time
+
         self.level_speed_range = [10, 20]
-        # TODO: Change the time, this is for testing purposes
         self.countdown = 45
 
-        for platform in level:
-            block = GameSprites.Platform(platform[0], platform[1])
-            block.rect.x = platform[2]
-            block.rect.y = platform[3]
-            block.player = self.player
-            self.platform_list.add(block)
+        self.set_platforms()
